@@ -78,55 +78,118 @@
                 display: none;
             }
         }
-
-        /* label color */
-        .input-field label {
-            color: #ffffff;
-        }
-
-        /* label focus color */
-        .input-field input[type=text]:focus+label {
-            color: #ffffff;
-        }
-
-        /* label underline focus color */
-        .input-field input[type=text]:focus {
-            border-bottom: 1px solid #ffffff;
-            box-shadow: 0 1px 0 0 #ffffff;
-        }
-
-        /* valid color */
-        .input-field input[type=text].valid {
-            border-bottom: 1px solid #ffffff;
-            box-shadow: 0 1px 0 0 #ffffff;
-        }
-
-        /* invalid color */
-        .input-field input[type=text].invalid {
-            border-bottom: 1px solid #ffffff;
-            box-shadow: 0 1px 0 0 #ffffff;
-        }
-
-        /* icon prefix focus color */
-        .input-field .prefix.active {
-            color: #ffffff;
-        }
     </style>
 </head>
 
 <body>
     <!-- App -->
     <div id="app" style="display: none;" v-show="loadVue">
-        <div class="container" style="padding-bottom: 50px;">
-            <div v-if="page" class="blur z-depth-2">
+        <div class="container">
+            <section v-if="page_loadFile" class="blur">
                 <div class="row">
-                    <div class="input-field col s6">
-                        <input value="" id="first_name2" type="text" class="validate">
-                        <label class="active" for="first_name2">First Arry</label>
+                    <h2>Ehi non ti dimentichi nulla? <b>NO NIENTE!</b></h2>
+                    <p class="flow-text"><i>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sequi dolore,
+                            eius
+                            molestias
+                            enim nesciunt necessitatibus! Dolorum aut, ex ratione aspernatur nisi, iste voluptates
+                            suscipit
+                            tempore
+                            repudiandae mollitia consequuntur excepturi eos.</i>
+                    </p>
+                </div>
+                <div class="row">
+                    <div class="file-field input-field">
+                        <div class="waves-effect waves-light btn green"
+                            v-bind:class="{'pulse': (btnLoad_isDisabled != true)}" :disabled='btnLoad_isDisabled'>
+                            <span><i class="material-icons left">file_upload</i>Load</span>
+                            <input @change="loadFile($event.target.files[0])" type="file"
+                                accept=".xls, .xlsx, .xlsm, .csv">
+                        </div>
                     </div>
-                    <div class="input-field col s6">
-                        <input value="" id="first_name2" type="text" class="validate">
-                        <label class="active " for="first_name2">Second Arry</label>
+                </div>
+                <div v-if="page_CpList_loader" class="row">
+                    <div class="progress">
+                        <div class="indeterminate green"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="container" style="padding-bottom: 50px;">
+            <div v-if="page_CpList" class="blur z-depth-2">
+                <div class="row">
+                    <div class="col s12">
+                        <div class="col-content">
+                            <p class="flow-text"><i>{{selectedFile_name}}</i></p>
+                            <table class="z-depth-1 grey darken-3" style="border-radius: 3px;">
+                                <!--highlight-->
+                                <thead class="noselect">
+                                    <tr>
+                                        <th class="pointer" v-on:click="SorteTable(1)">&emsp;CP
+                                            <i v-if="Math.abs(sort) == 1"
+                                                class="tiny material-icons">{{((Math.sign(sort) == 1) ? 'expand_less'
+                                                : 'expand_more')}}
+                                            </i>
+                                            <i v-else class="tiny material-icons">unfold_more</i>
+                                        </th>
+                                        <th class="noselect pointer center" v-on:click="SorteTable(2)">Status
+                                            <i v-if="Math.abs(sort) == 2"
+                                                class="tiny material-icons">{{((Math.sign(sort) == 1) ? 'expand_less'
+                                                : 'expand_more')}}
+                                            </i>
+                                            <i v-else class="tiny material-icons">unfold_more</i>
+                                        </th>
+                                        <th class="noselect pointer center" v-on:click="SorteTable(3)">CE
+                                            <i v-if="Math.abs(sort) == 3"
+                                                class="tiny material-icons">{{((Math.sign(sort) == 1) ? 'expand_less'
+                                                : 'expand_more')}}
+                                            </i>
+                                            <i v-else class="tiny material-icons">unfold_more</i>
+                                        </th>
+                                        <th class="noselect pointer center" v-on:click="SorteTable(4)">CE Errati
+                                            <i v-if="Math.abs(sort) == 4"
+                                                class="tiny material-icons">{{((Math.sign(sort) == 1) ? 'expand_less'
+                                                : 'expand_more')}}
+                                            </i>
+                                            <i v-else class="tiny material-icons">unfold_more</i>
+                                        </th>
+                                        <th class="noselect pointer center" v-on:click="SorteTable(5)">Controllati
+                                            <i v-if="Math.abs(sort) == 5"
+                                                class="tiny material-icons">{{((Math.sign(sort) == 1) ? 'expand_less'
+                                                : 'expand_more')}}
+                                            </i>
+                                            <i v-else class="tiny material-icons">unfold_more</i>
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="cp in CpTable">
+                                        <td>&emsp;{{cp[0]}}<a
+                                                v-bind:href="'https://geco.impresalevratti.it/admin/backend/pallet/?q=' + cp[0]"
+                                                class="noselect" target="_blank"><i
+                                                    class="tiny material-icons">open_in_new</i></a></td>
+                                        <td class="noselect center">{{cp[1]}}</td>
+                                        <td v-on:click="(cp[2] != 0) ? openDataGeco(cp[0], CpList[cp[0]].CE, true) : ''"
+                                            class="noselect center" v-bind:class="{'pointer': (cp[2] > 0)}">{{cp[2]}}
+                                        </td>
+                                        <td v-on:click="(cp[3] != 0) ? openDataGeco(cp[0], CpList[cp[0]].CE_Error, true) : ''"
+                                            class="noselect center" v-bind:class="{'pointer': (cp[3] > 0)}">{{cp[3]}}
+                                        </td>
+                                        <td v-on:click="(cp[4] == true) ? openConfrGeco(cp[0], CpList[cp[0]].Result, true) : ''"
+                                            class="noselect center" v-bind:class="{'pointer': (cp[4] == true)}"><i
+                                                class="material-icons">{{((cp[4] == true) ? 'check'
+                                                : 'close')}}</i>{{CpList[cp[0]].Result.length > 0 ?
+                                            CpList[cp[0]].Result.length: ''}}</td>
+                                        <td class="noselect center">
+                                            <label>
+                                                <input type="checkbox" v-model="cp[5]" />
+                                                <span></span>
+                                            </label>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 <div class="row">
@@ -134,44 +197,51 @@
                         <div class="col-content">
                             <div class="file-field input-field">
                                 <div class="waves-effect waves-light btn green" v-on:click="backLCList"><i
-                                        class="material-icons left">navigate_before</i>Clear</div>
+                                        class="material-icons left">navigate_before</i>Back</div>
+                                <div class="waves-effect waves-light btn green right"
+                                    v-bind:class="{pulse: modal_CE.length == 0}">
+                                    <span><i class="material-icons left">file_upload</i>Load</span>
+                                    <input multiple @change="loadFileGeCo($event.target.files)" type="file"
+                                        accept=".txt">
+                                </div>
                                 <div class="waves-effect waves-light btn green right" style="margin-right: 15px;"
-                                    v-on:click="DownloadAll">Confront</div>
+                                    v-on:click="DownloadAll">Download To GeCo</div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="container" style="padding-bottom: 50px;">
-            <div v-if="modal_show_data" class="modal grey darken-2" style="top: 10%; display: block; z-index: 999999;">
-                <div class="modal-content">
-                    <h4 v-on:click="showBarCodeCP = !showBarCodeCP" class="noselect">{{modal_CP}}<a v-show="modal_link"
-                            v-bind:href="'https://geco.impresalevratti.it/admin/backend/pallet/?q=' + modal_CP"
-                            class="material-icons noselect" target="_blank">open_in_new</a></h4>
-                    <img v-show="showBarCodeCP" alt="BarCode"
-                        v-bind:src="'http://bwipjs-api.metafloor.com/?bcid=code128&amp;text=' + modal_CP + '&amp;includetext'"
-                        style="display: block;">
-                    <ul v-if="modal_CE.length > 0" class="collection grey darken-3"
-                        style="overflow: hidden; overflow-y: auto; max-height: 260px; border: 1px solid #3a3a3a;">
-                        <li v-for="(CE, index) in modal_CE" v-bind:class="{'red-text': CheckErrorCE(CE)}"
-                            class="collection-item grey darken-3" :key="index"
-                            style="border-bottom: 1px solid #2d2d2d;"><span class="noselect">{{index+1}}:
-                            </span>{{CE}}
-                            <i v-show="modal_link" v-on:click="OpenBarCode(CE)"
-                                class="black-text material-icons right noselect pointer">{{((edit_Barcode === CE) ?
-                                'expand_less': 'expand_more')}}</i>
-                            <img v-show="edit_Barcode === CE" alt="BarCode" class="noselect"
-                                v-bind:src="'http://bwipjs-api.metafloor.com/?bcid=code128&amp;text=' + CE + '&amp;includetext'"
-                                style="display: block;">
-                        </li>
-                    </ul>
-                </div>
-                <div class="modal-footer grey darken-2">
-                    <a v-show="modal_link" v-on:click="DownloadCELIst(modal_CP, modal_CE)"
-                        class="modal-close waves-effect waves-green btn-flat">Download</a>
-                    <a v-on:click="modal_show_data = false"
-                        class="modal-close waves-effect waves-green btn-flat red">Close</a>
+                <!-- Modal Structure -->
+                <div v-if="modal_show_data" class="modal grey darken-2"
+                    style="top: 10%; display: block; z-index: 999999;">
+                    <div class="modal-content">
+                        <h4 v-on:click="showBarCodeCP = !showBarCodeCP" class="noselect">{{modal_CP}}<a
+                                v-show="modal_link"
+                                v-bind:href="'https://geco.impresalevratti.it/admin/backend/pallet/?q=' + modal_CP"
+                                class="material-icons noselect" target="_blank">open_in_new</a></h4>
+                        <img v-show="showBarCodeCP" alt="BarCode"
+                            v-bind:src="'http://bwipjs-api.metafloor.com/?bcid=code128&amp;text=' + modal_CP + '&amp;includetext'"
+                            style="display: block;">
+                        <ul v-if="modal_CE.length > 0" class="collection grey darken-3"
+                            style="overflow: hidden; overflow-y: auto; max-height: 260px; border: 1px solid #3a3a3a;">
+                            <li v-for="(CE, index) in modal_CE" v-bind:class="{'red-text': CheckErrorCE(CE)}"
+                                class="collection-item grey darken-3" :key="index"
+                                style="border-bottom: 1px solid #2d2d2d;"><span class="noselect">{{index+1}}:
+                                </span>{{CE}}
+                                <i v-show="modal_link" v-on:click="OpenBarCode(CE)"
+                                    class="black-text material-icons right noselect pointer">{{((edit_Barcode === CE) ?
+                                    'expand_less': 'expand_more')}}</i>
+                                <img v-show="edit_Barcode === CE" alt="BarCode" class="noselect"
+                                    v-bind:src="'http://bwipjs-api.metafloor.com/?bcid=code128&amp;text=' + CE + '&amp;includetext'"
+                                    style="display: block;">
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer grey darken-2">
+                        <a v-show="modal_link" v-on:click="DownloadCELIst(modal_CP, modal_CE)"
+                            class="modal-close waves-effect waves-green btn-flat">Download</a>
+                        <a v-on:click="modal_show_data = false"
+                            class="modal-close waves-effect waves-green btn-flat red">Close</a>
+                    </div>
                 </div>
             </div>
         </div>
